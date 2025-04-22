@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VoiceBot</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 2em;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+    }
+    audio {
+      display: block;
+      margin-top: 1em;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>AI VoiceBot 🎤</h1>
+  <form id="chat-form">
+    <label for="prompt">Ask me something:</label><br>
+    <textarea id="prompt" name="prompt" required></textarea><br><br>
+    <label><input type="checkbox" id="useLocal" /> Use Local LLM (Ollama)</label><br><br>
+    <button type="submit">Send</button>
+  </form>
+
+  <h3>Response:</h3>
+  <div id="response-text"></div>
+  <audio id="audio-player" controls></audio>
+
+  <script>
+    const form = document.getElementById('chat-form');
+    const player = document.getElementById('audio-player');
+    const responseText = document.getElementById('response-text');
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const prompt = document.getElementById('prompt').value;
+      const useLocal = document.getElementById('useLocal').checked;
+
+      const res = await fetch('/api/respond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, useLocal })
+      });
+
+      const data = await res.json();
+      responseText.innerText = data.text;
+      player.src = data.audioUrl;
+      player.play();
+    };
+  </script>
+</body>
+</html>
